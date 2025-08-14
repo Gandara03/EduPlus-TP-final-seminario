@@ -75,9 +75,9 @@ export async function GET() {
         fechaCreacion: new Date(),
         comentarios: [],
         modulos: [],
-        requisitos: curso.requisitos || [],
-        temario: curso.temario || [],
-        materiales: curso.materiales || []
+        requisitos: [],
+        temario: [],
+        materiales: []
       });
       resultados.push({ id: cursoRef.id, titulo: curso.titulo });
     }
