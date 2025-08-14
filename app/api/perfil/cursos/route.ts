@@ -1,18 +1,9 @@
 import { NextResponse } from 'next/server';
-import * as admin from 'firebase-admin';
-import { getApps } from 'firebase-admin/app';
-
-if (!getApps().length) {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount as any),
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || ""
-  });
-}
-const db = admin.firestore();
+import { getFirestoreDB } from '@/lib/firebase-admin';
 
 export async function POST(req: Request) {
   try {
+    const db = getFirestoreDB();
     const { uid } = await req.json();
     if (!uid) return NextResponse.json({ ok: false, error: 'UID requerido' }, { status: 400 });
     const enProgresoSnap = await db.collection(`users/${uid}/enProgreso`).get();

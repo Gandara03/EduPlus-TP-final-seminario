@@ -1,15 +1,5 @@
 import { NextResponse } from 'next/server';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
-
-if (!getApps().length) {
-  initializeApp({
-    credential: cert(serviceAccount),
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || ""
-  });
-}
-const db = getFirestore();
+import { getFirestoreDB } from '@/lib/firebase-admin';
 
 export async function GET(
   request: Request, 
@@ -18,6 +8,7 @@ export async function GET(
   // Para Next.js 14/15, params puede ser una promesa
   const { id } = await params;
   try {
+    const db = getFirestoreDB();
     const docRef = db.collection('cursos').doc(id);
     const docSnap = await docRef.get();
     if (!docSnap.exists) {

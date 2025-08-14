@@ -1,18 +1,9 @@
 import { NextResponse } from 'next/server';
-const admin = require('firebase-admin');
-const { getApps } = require('firebase-admin/app');
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
-
-if (!getApps().length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || ""
-  });
-}
-const db = admin.firestore();
+import { getFirestoreDB } from '@/lib/firebase-admin';
 
 export async function GET() {
   try {
+    const db = getFirestoreDB();
     const snapshot = await db.collection('cursos').get();
     const cursos = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
     return NextResponse.json({ ok: true, cursos });

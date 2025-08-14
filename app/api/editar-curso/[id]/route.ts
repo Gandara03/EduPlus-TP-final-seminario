@@ -1,38 +1,5 @@
 import { NextResponse } from 'next/server';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import * as admin from 'firebase-admin';
-
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
-
-// Asegurarnos de que el bucket existe y está correctamente configurado
-const BUCKET_NAME = process.env.FIREBASE_STORAGE_BUCKET || "";
-
-if (!getApps().length) {
-  try {
-    initializeApp({
-      credential: cert(serviceAccount as any),
-      storageBucket: BUCKET_NAME
-    });
-    console.log('Firebase Admin inicializado correctamente');
-  } catch (error) {
-    console.error('Error al inicializar Firebase Admin:', error);
-  }
-}
-
-const db = getFirestore();
-const bucket = admin.storage().bucket(BUCKET_NAME);
-
-// Verificar que el bucket existe
-bucket.exists().then(([exists]) => {
-  if (!exists) {
-    console.error(`El bucket ${BUCKET_NAME} no existe`);
-  } else {
-    console.log(`Bucket ${BUCKET_NAME} verificado correctamente`);
-  }
-}).catch(error => {
-  console.error('Error al verificar el bucket:', error);
-});
+import { getFirestoreDB } from '@/lib/firebase-admin';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -44,6 +11,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ error: 'ID de curso no proporcionado' }, { status: 400 });
     }
 
+    const db = getFirestoreDB();
     // Verificar que el curso existe
     const cursoRef = db.collection('cursos').doc(cursoId);
     const cursoDoc = await cursoRef.get();

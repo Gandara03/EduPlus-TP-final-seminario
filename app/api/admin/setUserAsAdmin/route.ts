@@ -1,18 +1,9 @@
 import { NextResponse } from 'next/server';
-import * as admin from 'firebase-admin';
-import { getApps } from 'firebase-admin/app';
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
-
-if (!getApps().length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount as any),
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || ""
-  });
-}
-const db = admin.firestore();
+import { getFirestoreDB } from '@/lib/firebase-admin';
 
 export async function POST(req: Request) {
   try {
+    const db = getFirestoreDB();
     const { email } = await req.json();
     if (!email) return NextResponse.json({ ok: false, error: 'Email requerido' }, { status: 400 });
     const usersRef = db.collection('users');

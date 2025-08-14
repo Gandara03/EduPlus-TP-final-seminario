@@ -1,23 +1,5 @@
 import { NextResponse } from 'next/server';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import * as admin from 'firebase-admin';
-
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
-
-if (!getApps().length) {
-  try {
-    initializeApp({
-      credential: cert(serviceAccount as any),
-      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || ""
-    });
-    console.log('Firebase Admin inicializado correctamente');
-  } catch (error) {
-    console.error('Error al inicializar Firebase Admin:', error);
-  }
-}
-
-const db = getFirestore();
+import { getFirestoreDB } from '@/lib/firebase-admin';
 
 export async function POST(req: Request) {
   try {
@@ -81,6 +63,7 @@ export async function POST(req: Request) {
       if (!data.titulo || !data.categoria || !data.descripcion) {
         return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 });
       }
+      const db = getFirestoreDB();
       const cursoRef = await db.collection('cursos').add(data);
       console.log('Curso creado exitosamente con ID:', cursoRef.id);
       return NextResponse.json({ ok: true, id: cursoRef.id });

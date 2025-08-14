@@ -65,24 +65,9 @@ const cursosEjemplo = [
 ];
 
 export async function GET() {
-  try {
-    const resultados = [];
-    for (const curso of cursosEjemplo) {
-      const id = await cursosService.createCurso(curso);
-      resultados.push({ id, titulo: curso.titulo });
-    }
-    
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Migración completada exitosamente',
-      resultados 
-    });
-  } catch (error) {
-    console.error('Error durante la migración:', error);
-    return NextResponse.json({ 
-      success: false, 
-      message: 'Error durante la migración',
-      error: error instanceof Error ? error.message : 'Error desconocido'
-    }, { status: 500 });
-  }
+  // Temporalmente deshabilitado durante el build
+  return NextResponse.json({ 
+    success: false, 
+    message: 'Migración temporalmente deshabilitada',
+  }, { status: 503 });
 } 
