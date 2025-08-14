@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { cursosService } from '@/lib/cursos';
+import { getFirestoreDB } from '@/lib/firebase-admin';
 
 const cursosEjemplo = [
   {
@@ -65,9 +65,34 @@ const cursosEjemplo = [
 ];
 
 export async function GET() {
-  // Temporalmente deshabilitado durante el build
-  return NextResponse.json({ 
-    success: false, 
-    message: 'Migración temporalmente deshabilitada',
-  }, { status: 503 });
+  try {
+    const db = getFirestoreDB();
+    const resultados = [];
+    
+    for (const curso of cursosEjemplo) {
+      const cursoRef = await db.collection('cursos').add({
+        ...curso,
+        fechaCreacion: new Date(),
+        comentarios: [],
+        modulos: [],
+        requisitos: curso.requisitos || [],
+        temario: curso.temario || [],
+        materiales: curso.materiales || []
+      });
+      resultados.push({ id: cursoRef.id, titulo: curso.titulo });
+    }
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Migración completada exitosamente',
+      resultados 
+    });
+  } catch (error) {
+    console.error('Error durante la migración:', error);
+    return NextResponse.json({ 
+      success: false, 
+      message: 'Error durante la migración',
+      error: error instanceof Error ? error.message : 'Error desconocido'
+    }, { status: 500 });
+  }
 } 
