@@ -11,26 +11,16 @@ function initializeFirebaseAdmin() {
   try {
     console.log('Inicializando Firebase Admin...');
     
-    // Construir service account desde variables separadas
-    const serviceAccount = {
-      type: "service_account",
-      project_id: process.env.FIREBASE_PROJECT_ID || "",
-      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID || "",
-      private_key: process.env.FIREBASE_PRIVATE_KEY || "",
-      client_email: process.env.FIREBASE_CLIENT_EMAIL || "",
-      client_id: process.env.FIREBASE_CLIENT_ID || "",
-      auth_uri: "https://accounts.google.com/o/oauth2/auth",
-      token_uri: "https://oauth2.googleapis.com/token",
-      auth_provider_x509_cert_url: "https://www.googleapis.com/v1/certs",
-      client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${process.env.FIREBASE_CLIENT_EMAIL || ""}`,
-      universe_domain: "googleapis.com"
-    };
+    const serviceAccountRaw = process.env.FIREBASE_SERVICE_ACCOUNT;
+    if (!serviceAccountRaw) {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT no está configurada');
+    }
+
+    const serviceAccount = JSON.parse(serviceAccountRaw);
+    console.log('Service account parseado correctamente, keys:', Object.keys(serviceAccount));
     
-    console.log('Service account construido desde variables separadas');
-    console.log('Project ID:', serviceAccount.project_id);
-    
-    if (!serviceAccount.project_id || !serviceAccount.private_key) {
-      throw new Error('Variables de Firebase Admin incompletas');
+    if (!serviceAccount.project_id) {
+      throw new Error('Service account inválido: falta project_id');
     }
 
     const app = initializeApp({
